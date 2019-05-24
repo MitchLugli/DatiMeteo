@@ -2,25 +2,27 @@
 import subprocess, threading, pickle
 
 def getData(var):
-	repeat = True
-	global dictDati, lock
-	t = "/calvino-07/" + var
-	while repeat:
-		dato = subprocess.check_output(["mosquitto_sub","-u","calvino00","-t",t,"-P","0123456789","-h","broker.shiftr.io","-W","3"])
-		with lock:
-			dato = dato.decode("utf-8")
-			dato = dato.strip()
-			print(dato)### tmp
-			try:
-				dictDati[var] = float(dato)
-			except:
-				repeat = True
-			else:
-				repeat = False
-	if len(dictDati) == 4:
-		with open("dati.txt", "wb") as file:
-			pickle.dump(dictDati, file)
-			print(dictDati)### tmp
+	try:
+		repeat = True
+		global dictDati, lock
+		t = "/calvino-07/" + var
+		while repeat:
+			dato = subprocess.check_output(["mosquitto_sub","-u","calvino00","-t",t,"-P","0123456789","-h","broker.shiftr.io","-W","5"])
+			with lock:
+				dato = dato.decode("utf-8")
+				dato = dato.strip()
+				try:
+					dictDati[var] = float(dato)
+				except:
+					repeat = True
+				else:
+					repeat = False
+		if len(dictDati) == 4:
+			with open("dati.txt", "wb") as file:
+				pickle.dump(dictDati, file)
+				print(dictDati)### tmp
+	except KeyboardInterrupt:
+		exit(0)
 
 if __name__ == "__main__":
 	dictDati = {}
